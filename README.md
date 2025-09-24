@@ -36,7 +36,8 @@ Some Questions answered through this:
 │ database_design.png
 │.env                          Stores API keys
 │ main.py                      Main python file that executes all of the scripts
-│ pdi_assignment.db            SQLite database (generated after ETL run of multiple days)
+│ pdi_assignment.db            SQLite database (generated after ETL run of multiple days. It's a "backup")
+│ pdi_assignment_new.db        SQLite database (generated from script)
 │ requirements.txt             Package and version requirements
 ```
 ## Setup
