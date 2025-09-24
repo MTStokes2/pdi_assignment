@@ -4,4 +4,3 @@ FROM
     fact_events e
     JOIN dim_cities c ON e.city_id = c.city_id
     LEFT JOIN dim_weather w ON e.city_id = w.city_id
-    AND DATE(e.start_date) = DATE(w.datetime);
