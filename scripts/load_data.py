@@ -3,7 +3,7 @@ from typing import Dict, Any
 def load_city_data(conn, city_data: Dict[str, Any]):
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT OR REPLACE INTO cities (city_name, country, state, population, latitude, longitude)
+        INSERT OR REPLACE INTO dim_cities (city_name, country, state, population, latitude, longitude)
         VALUES (:city, :country, :state, :population, :latitude, :longitude)
     """, {
         "city": city_data.get("city_name"),
@@ -15,21 +15,26 @@ def load_city_data(conn, city_data: Dict[str, Any]):
     })
     conn.commit()
 
+def get_city_id(conn, city_name):
+    cursor = conn.cursor()
+    cursor.execute("SELECT city_id FROM dim_cities WHERE city_name = ?", (city_name,))
+    result = cursor.fetchone()
+    return result[0] if result else None
+
 def load_event_data(conn, ev: Dict[str, Any]):
     cursor = conn.cursor()
+
     cursor.execute("""
-        INSERT OR REPLACE INTO events (id, name, url, start_date, start_time, venue,
-            city_name, country, segment, genre, sub_genre)
-        VALUES (:id, :name, :url, :start_date, :start_time, :venue, :city_name, :country, :segment, :genre, :subGenre)
+        INSERT OR REPLACE INTO fact_events (event_id, city_id, name, url, start_date, start_time, venue, segment, genre, sub_genre)
+        VALUES (:event_id, :city_id, :name, :url, :start_date, :start_time, :venue, :segment, :genre, :subGenre)
     """, {
-        "id": ev["ticketmaster_id"], 
+        "event_id": ev["ticketmaster_id"], 
+        "city_id": get_city_id(conn, ev["city_name"]),
         "name": ev["name"],
         "url": ev["url"],
         "start_date": ev["start_date"],
         "start_time": ev["start_time"],
         "venue": ev["venue"],
-        "city_name": ev["city_name"],
-        "country": "United States of America" if ev["country"] == "US" else ev["country"],
         "segment": ev["segment"],
         "genre": ev["genre"],
         "subGenre": ev["sub_genre"]
@@ -39,11 +44,10 @@ def load_event_data(conn, ev: Dict[str, Any]):
 def load_weather_data(conn, weather: Dict[str, Any]):
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT OR REPLACE INTO weather (datetime, city_name, country, temperature, humidity, wind_speed, wind_direction, precipitation, weather_description)
-        VALUES (:datetime, :city_name, :country, :temp, :humidity, :wind_speed, :wind_direction, :precipitation, :weather_desc)
+        INSERT OR REPLACE INTO dim_weather (datetime, city_id, temperature, humidity, wind_speed, wind_direction, precipitation, weather_description)
+        VALUES (:datetime, :city_id, :temp, :humidity, :wind_speed, :wind_direction, :precipitation, :weather_desc)
     """, {
-        "city_name": weather["city_name"],
-        "country": weather["country"],
+        "city_id": get_city_id(conn, weather["city_name"]),
         "datetime": weather["datetime"],
         "temp": weather["temperature"],
         "humidity": weather["humidity"],
