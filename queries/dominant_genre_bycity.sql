@@ -2,20 +2,33 @@ CREATE VIEW dominant_genre_by_city AS
 WITH
     genre_counts AS (
         SELECT
-            city_name,
-            genre,
+            c.city_id,
+            c.city_name,
+            c.country,
+            c.state,
+            e.genre,
             COUNT(*) AS genre_count,
             RANK() OVER (
                 PARTITION BY
-                    city_name
+                    c.city_id
                 ORDER BY COUNT(*) DESC
             ) AS genre_rank
-        FROM events
+        FROM fact_events e
+            JOIN dim_cities c ON e.city_id = c.city_id
         GROUP BY
-            city_name,
-            genre
+            c.city_id,
+            c.city_name,
+            c.country,
+            c.state,
+            e.genre
     )
-SELECT city_name, genre, genre_count
+SELECT
+    city_id,
+    city_name,
+    country,
+    state,
+    genre,
+    genre_count
 FROM genre_counts
 WHERE
     genre_rank = 1;

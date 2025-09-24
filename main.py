@@ -5,7 +5,6 @@ import requests
 import time
 import traceback
 from datetime import datetime
-from typing import Optional, Dict, Any, List
 from dotenv import load_dotenv
 
 import scripts.load_data as data
@@ -135,10 +134,11 @@ def fetch_weather_for_city(city_name: str, country: str):
 
 
 if __name__ == "__main__":
-    conn = sqlite3.connect("events_project.db")
+    conn = sqlite3.connect("pdi_assignment.db")
     ddl.create_events_table(conn)
     ddl.create_cities_table(conn)
     ddl.create_weather_table(conn)
+    ddl.create_indexes(conn)
 
     views.create_views(conn)
 
@@ -160,24 +160,24 @@ if __name__ == "__main__":
         print(f"Finished loading City Data in {time.time() - step_start:.2f} seconds")
 
         # Events data
-        """ step_start = time.time()
+        step_start = time.time()
         print("\n" + "=" * 50)
         print(f"Step 2: Loading {city} Events")
         print("=" * 50)
         events = fetch_ticketmaster_events_for_city(city)
         for ev in events:
             data.load_event_data(conn, ev)
-        print(f"Finished loading Events Data in {time.time() - step_start:.2f} seconds") """
+        print(f"Finished loading Events Data in {time.time() - step_start:.2f} seconds")
 
         # Weather data
-        """ step_start = time.time()
+        step_start = time.time()
         print("\n" + "=" * 50)
         print(f"Step 3: Loading {city} Weather")
         print("=" * 50)
         weather = fetch_weather_for_city(city, "United States of America")
         if weather:
             data.load_weather_data(conn, weather)
-        print(f"Finished loading Weather Data in {time.time() - step_start:.2f} seconds") """
+        print(f"Finished loading Weather Data in {time.time() - step_start:.2f} seconds")
 
         print(f"\n Total time for {city}: {time.time() - city_start:.2f} seconds")
 

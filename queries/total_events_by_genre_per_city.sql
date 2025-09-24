@@ -1,7 +1,8 @@
 CREATE VIEW total_events_by_genre_per_city AS
-SELECT city_name, genre, COUNT(*) AS genre_count
-FROM events
+SELECT c.city_name, f.genre, COUNT(f.event_id) AS genre_count
+FROM fact_events f
+    JOIN dim_cities c ON f.city_id = c.city_id
 GROUP BY
-    city_name,
-    genre
-ORDER BY city_name, genre_count DESC;
+    c.city_name,
+    f.genre
+ORDER BY c.city_name, genre_count DESC;
